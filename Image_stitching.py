@@ -6,6 +6,9 @@ import logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - [%(filename)s - line %(lineno)s]'
                                                 ' - %(message)s')
 
+
+PIC_FOLDER_PATH = 'F:\\photos'
+
 top_x = [66, 66, 66+4000+67, 66+4000+67]
 top_y = [100, 100+6000+100, 100, 100+6000+100]
 
@@ -47,7 +50,7 @@ def clip_image(img):
 
 
 if __name__ == '__main__':
-    pic_folder_path = 'F:\\photos'
+    pic_folder_path = input('please input your photo folder:')
     # pic_folder_path = './pics'
     canvas_template = np.ones((8200, 12300, 3), dtype=np.uint8) * 255
 
@@ -72,3 +75,5 @@ if __name__ == '__main__':
         final_image_path = os.path.join(pic_folder_path, 'stitch_{}.jpg'.format(index))
         logging.info('writing to file: {}'.format(final_image_path))
         cv2.imwrite(final_image_path, final_image)
+    logging.info('FINISHED! Please find the result in the folder.')
+    input('[press enter to close this...]')
