@@ -1,16 +1,25 @@
 import os
 import cv2
-import numpy as np
 import logging
+from BackgroundGenerator import BackgroundGenerator
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - [%(filename)s - line %(lineno)s]'
                                                 ' - %(message)s')
 
 
-PIC_FOLDER_PATH = 'F:\\photos'
+LEFT_RIGHT_PADDING = 570
+UP_DOWN_PADDING = 380
+MIDDLE_PADDING = 100
+PIC_WIDTH = 6000
+PIC_HEIGHT = 4000
+FINAL_WIDTH = PIC_WIDTH*2 + LEFT_RIGHT_PADDING*2 + MIDDLE_PADDING
+FINAL_HEIGHT = PIC_HEIGHT*2 + UP_DOWN_PADDING*2 + MIDDLE_PADDING
 
-top_x = [66, 66, 66+4000+67, 66+4000+67]
-top_y = [100, 100+6000+100, 100, 100+6000+100]
+x_pos = [UP_DOWN_PADDING, UP_DOWN_PADDING+PIC_HEIGHT+MIDDLE_PADDING]
+y_pos = [LEFT_RIGHT_PADDING, LEFT_RIGHT_PADDING+PIC_WIDTH+MIDDLE_PADDING]
+
+top_x = [x_pos[0], x_pos[0], x_pos[1], x_pos[1]]
+top_y = [y_pos[0], y_pos[1], y_pos[0], y_pos[1]]
 
 
 def group_pic_by_4(pics: list):
@@ -51,8 +60,8 @@ def clip_image(img):
 
 if __name__ == '__main__':
     pic_folder_path = input('please input your photo folder:')
-    # pic_folder_path = './pics'
-    canvas_template = np.ones((8200, 12300, 3), dtype=np.uint8) * 255
+    # pic_folder_path = 'C:\\Users\\Sponge Bob\\Pictures\\test\\stitch'
+    canvas_template = BackgroundGenerator.generate(FINAL_HEIGHT, FINAL_WIDTH, 0)
 
     pics = os.listdir(pic_folder_path)
     pics = group_pic_by_4(pics)
@@ -64,8 +73,10 @@ if __name__ == '__main__':
             # fix width/height 固定宽高比为3:2(或者2:3)
             clipped_image = clip_image(image)
             # upscale 缩放大小
-            if not clipped_image.shape == (6000, 4000, 3):
-                upscale_image = cv2.resize(clipped_image, (6000, 4000))
+            if not clipped_image.shape == (PIC_WIDTH, PIC_HEIGHT, 3):
+                upscale_image = cv2.resize(clipped_image, (PIC_WIDTH, PIC_HEIGHT))
+            else:
+                upscale_image = clipped_image
             # stitch the 4 picture together 四张拼在白色背景上
             height, width, _ = upscale_image.shape
             logging.debug('upscale width: {}, height: {}'.format(width, height))
@@ -74,6 +85,7 @@ if __name__ == '__main__':
             final_image[top_x[i]:top_x[i]+height, top_y[i]:top_y[i]+width] = upscale_image
         final_image_path = os.path.join(pic_folder_path, 'stitch_{}.jpg'.format(index))
         logging.info('writing to file: {}'.format(final_image_path))
+        # final_image_path = final_image_path.replace('.jpg', '.png')
         cv2.imwrite(final_image_path, final_image)
     logging.info('FINISHED! Please find the result in the folder.')
     input('[press enter to close this...]')
