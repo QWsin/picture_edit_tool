@@ -22,10 +22,14 @@ top_x = [x_pos[0], x_pos[0], x_pos[1], x_pos[1]]
 top_y = [y_pos[0], y_pos[1], y_pos[0], y_pos[1]]
 
 
-def group_pic_by_4(pics: list):
+def group_pic_by_4(files: list):
+    pics = []
+    for file in files:
+        if os.path.splitext(file)[1] in ['jpeg', 'jpg', 'png']:
+            pics.append(file)
     result = []
-    for i in range(0, len(pics), 4):
-        result.append(pics[i:i+4])
+    for index in range(0, len(pics), 4):
+        result.append(pics[index:index+4])
     return result
 
 
